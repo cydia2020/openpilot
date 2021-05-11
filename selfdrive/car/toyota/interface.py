@@ -9,10 +9,25 @@ from selfdrive.car.interfaces import CarInterfaceBase
 EventName = car.CarEvent.EventName
 
 
+def compute_gb_gas_interceptor(accel, speed):
+  if speed < 3:
+    return float(accel / 3.0 * (0.5 + speed / 60.0))
+  return float(accel) / 3.0
+
+def compute_gb_toyota(accel, speed):
+  return float(accel) / 3.0
+
 class CarInterface(CarInterfaceBase):
+  def __init__(self, CP, CarController, CarState):
+    super().__init__(CP, CarController, CarState)
+    if self.CP.enableGasInterceptor:
+      self.compute_gb = compute_gb_gas_interceptor
+    else:
+      self.compute_gb = compute_gb_toyota
+
   @staticmethod
   def compute_gb(accel, speed):
-    return float(accel) / CarControllerParams.ACCEL_SCALE
+    raise NotImplementedError
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=[]):  # pylint: disable=dangerous-default-value
@@ -341,11 +356,9 @@ class CarInterface(CarInterfaceBase):
     # intercepting the DSU is a community feature since it requires unofficial hardware
     ret.communityFeature = ret.enableGasInterceptor or ret.enableDsu or smartDsu
 
-    if ret.enableGasInterceptor:
-      ret.gasMaxBP = [0., 9., 35]
-      ret.gasMaxV = [0.2, 0.5, 0.7]
-      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
-      ret.longitudinalTuning.kiV = [0.18, 0.12]
+    if ret.enableGasInterceptor: # ramp down acceleration once desired speed is reached
+      ret.gasMaxBP = [0., 3.]
+      ret.gasMaxV = [0.3, 0.5]
 
     return ret
 
