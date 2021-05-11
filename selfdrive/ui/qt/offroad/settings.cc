@@ -197,7 +197,7 @@ DevicePanel::DevicePanel(QWidget* parent) : QWidget(parent) {
       padding: 0;
       height: 120px;
       border-radius: 15px;
-      background-color: #393939;
+      background-color: #000000;
     }
   )");
 }
@@ -276,7 +276,7 @@ void SettingsWindow::showEvent(QShowEvent *event) {
   panel_widget = new QStackedWidget();
   panel_widget->setStyleSheet(R"(
     border-radius: 30px;
-    background-color: #292929;
+    background-color: #000000;
   )");
 
   // close button
@@ -286,7 +286,7 @@ void SettingsWindow::showEvent(QShowEvent *event) {
     font-weight: bold;
     border 1px grey solid;
     border-radius: 100px;
-    background-color: #292929;
+    background-color: #000000;
   )");
   close_btn->setFixedSize(200, 200);
   sidebar_layout->addSpacing(45);
