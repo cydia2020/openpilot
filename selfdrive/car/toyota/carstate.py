@@ -65,7 +65,8 @@ class CarState(CarStateBase):
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
     ret.leftBlinker = cp.vl["STEERING_LEVERS"]['TURN_SIGNALS'] == 1
     ret.rightBlinker = cp.vl["STEERING_LEVERS"]['TURN_SIGNALS'] == 2
-
+    ret.parkingLightON = cp.vl["LIGHT_STALK"]['PARKING_LIGHT'] == 1
+    ret.headlightON = cp.vl["LIGHT_STALK"]['LOW_BEAM'] == 1
     ret.steeringTorque = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
     ret.steeringTorqueEps = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
     # we could use the override bit from dbc, but it's triggered at too high torque values
@@ -133,6 +134,8 @@ class CarState(CarStateBase):
       ("TURN_SIGNALS", "STEERING_LEVERS", 3),   # 3 is no blinkers
       ("LKA_STATE", "EPS_STATUS", 0),
       ("BRAKE_LIGHTS_ACC", "ESP_CONTROL", 0),
+      ("PARKING_LIGHT", "LIGHT_STALK", 0),
+      ("LOW_BEAM", "LIGHT_STALK", 0),
       ("AUTO_HIGH_BEAM", "LIGHT_STALK", 0),
     ]
 
