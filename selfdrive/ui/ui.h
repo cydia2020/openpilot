@@ -78,6 +78,9 @@ typedef struct UIScene {
 
   bool is_rhd;
   bool driver_view;
+  bool headlightON;
+  bool parkingLightON;
+  int lightSensor;
 
   cereal::PandaState::PandaType pandaType;
 

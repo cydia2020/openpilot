@@ -66,6 +66,9 @@ class CarState(CarStateBase):
     ret.leftBlinker = cp.vl["STEERING_LEVERS"]['TURN_SIGNALS'] == 1
     ret.rightBlinker = cp.vl["STEERING_LEVERS"]['TURN_SIGNALS'] == 2
 
+    ret.parkingLightON = cp.vl["LIGHT_STALK"]['PARKING_LIGHT'] == 1
+    ret.headlightON = cp.vl["LIGHT_STALK"]['LOW_BEAM'] == 1
+    ret.lightSensor = cp.vl["SOLAR_SENSOR"]['LUX_SENSOR']
     ret.steeringTorque = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
     ret.steeringTorqueEps = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
     # we could use the override bit from dbc, but it's triggered at too high torque values
@@ -116,6 +119,7 @@ class CarState(CarStateBase):
       ("WHEEL_SPEED_FR", "WHEEL_SPEEDS", 0),
       ("WHEEL_SPEED_RL", "WHEEL_SPEEDS", 0),
       ("WHEEL_SPEED_RR", "WHEEL_SPEEDS", 0),
+      ("LUX_SENSOR", "SOLAR_SENSOR", 0),
       ("DOOR_OPEN_FL", "SEATS_DOORS", 1),
       ("DOOR_OPEN_FR", "SEATS_DOORS", 1),
       ("DOOR_OPEN_RL", "SEATS_DOORS", 1),
@@ -133,6 +137,8 @@ class CarState(CarStateBase):
       ("TURN_SIGNALS", "STEERING_LEVERS", 3),   # 3 is no blinkers
       ("LKA_STATE", "EPS_STATUS", 0),
       ("BRAKE_LIGHTS_ACC", "ESP_CONTROL", 0),
+      ("PARKING_LIGHT", "LIGHT_STALK", 0),
+      ("LOW_BEAM", "LIGHT_STALK", 0),
       ("AUTO_HIGH_BEAM", "LIGHT_STALK", 0),
     ]
 
@@ -149,6 +155,7 @@ class CarState(CarStateBase):
       ("STEER_ANGLE_SENSOR", 80),
       ("PCM_CRUISE", 33),
       ("STEER_TORQUE_SENSOR", 50),
+      ("SOLAR_SENSOR", 100),
     ]
 
     if CP.carFingerprint == CAR.LEXUS_IS:

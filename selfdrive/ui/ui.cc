@@ -136,6 +136,9 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     scene.car_state = sm["carState"].getCarState();
+    s->scene.parkingLightON = scene.car_state.getParkingLightON();
+    s->scene.headlightON = scene.car_state.getHeadlightON();
+    s->scene.lightSensor = scene.car_state.getLightSensor();
   }
   if (sm.updated("radarState")) {
     std::optional<cereal::ModelDataV2::XYZTData::Reader> line;
@@ -345,16 +348,35 @@ void Device::setAwake(bool on, bool reset) {
 }
 
 void Device::updateBrightness(const UIState &s) {
-  float clipped_brightness = std::min(100.0f, (s.scene.light_sensor * brightness_m) + brightness_b);
-  if (Hardware::TICI() && !s.scene.started) {
-    clipped_brightness = BACKLIGHT_OFFROAD;
+  int brightness = BACKLIGHT_OFFROAD;
+  // this is the OFFROAD backlight, defaults to 50.
+  if (!s.scene.started) {
+    brightness = BACKLIGHT_OFFROAD;
   }
-
-  int brightness = brightness_filter.update(clipped_brightness);
+  // turn off backlight when device is not awaken.
   if (!awake) {
     brightness = 0;
   }
 
+  // headlight based brightness by @cydia2020.
+  //
+  // s.scene.car_state.getLightSensor is the value reported by the vehicle's light sensor.
+  //
+  // the default low beam logic is to dim the brightness to 9.0 when the low beam is ON and the sensor reports less than 500.
+  //
+  // when only the parking lights are ON, the default behaviour is to dim the display to about 50% brightness only if the reported 
+  // brightness is smaller than 1000.
+  //
+  // this is so that the display would not dim to unreadable brightness when using openpilot in foggy or misty conditions where the
+  // surroundings might be bright but the law requires drivers to have the parking lights and fog lights ON.
+  if (s.scene.car_state.getHeadlightON() && s.scene.car_state.getLightSensor() < 500) {
+    brightness = 9.0;
+  } else if (s.scene.car_state.getParkingLightON() && !s.scene.car_state.getHeadlightON() && s.scene.car_state.getLightSensor() < 1000) {
+    brightness = 50.0;
+  } else {
+    brightness = 100.0;
+  }
+  // this calls for the actual brightness update
   if (brightness != last_brightness) {
     std::thread{Hardware::set_brightness, brightness}.detach();
   }
