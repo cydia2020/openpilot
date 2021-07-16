@@ -1,8 +1,6 @@
 #pragma once
 
 #include <QButtonGroup>
-#include <QPushButton>
-#include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -19,17 +17,13 @@ public:
 
 private:
   WifiManager *wifi = nullptr;
-  QVBoxLayout *vlayout;
-
-  QButtonGroup *connectButtons;
-  bool tetheringEnabled;
+  QVBoxLayout* main_layout;
 
 signals:
-  void connectToNetwork(Network n);
+  void connectToNetwork(const Network &n);
 
 public slots:
   void refresh();
-  void handleButton(QAbstractButton* m_button);
 };
 
 class AdvancedNetworking : public QWidget {
@@ -39,39 +33,37 @@ public:
 
 private:
   LabelControl* ipLabel;
-  ButtonControl* editPasswordButton;
   WifiManager* wifi = nullptr;
 
 signals:
   void backPress();
 
 public slots:
-  void toggleTethering(bool enable);
+  void toggleTethering(bool enabled);
   void refresh();
 };
 
-class Networking : public QWidget {
+class Networking : public QFrame {
   Q_OBJECT
 
 public:
   explicit Networking(QWidget* parent = 0, bool show_advanced = true);
 
 private:
-  QStackedLayout* s = nullptr; // nm_warning, wifiScreen, advanced
+  QStackedLayout* main_layout = nullptr;
   QWidget* wifiScreen = nullptr;
   AdvancedNetworking* an = nullptr;
-  bool ui_setup_complete = false;
-  bool show_advanced;
-
-  Network selectedNetwork;
 
   WifiUI* wifiWidget;
   WifiManager* wifi = nullptr;
-  void attemptInitialization();
+
+protected:
+  void showEvent(QShowEvent* event) override;
+
+public slots:
+  void refresh();
 
 private slots:
-  void connectToNetwork(Network n);
-  void refresh();
-  void wrongPassword(QString ssid);
+  void connectToNetwork(const Network &n);
+  void wrongPassword(const QString &ssid);
 };
-
